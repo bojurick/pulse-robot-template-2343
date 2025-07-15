@@ -1,133 +1,118 @@
 
 import React, { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
+import UserMenu from "./UserMenu";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      setIsScrolled(window.scrollY > 20);
     };
-    
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-    // Prevent background scrolling when menu is open
-    document.body.style.overflow = !isMenuOpen ? 'hidden' : '';
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    
-    // Close mobile menu if open
-    if (isMenuOpen) {
-      setIsMenuOpen(false);
-      document.body.style.overflow = '';
-    }
-  };
+  const navItems = [
+    { name: "Features", href: "#features" },
+    { name: "Specs", href: "#specs" },
+    { name: "Gallery", href: "#gallery" },
+    { name: "About", href: "#about" },
+  ];
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 py-2 sm:py-3 md:py-4 transition-all duration-300",
-        isScrolled 
-          ? "bg-white/80 backdrop-blur-md shadow-sm" 
-          : "bg-transparent"
-      )}
-    >
-      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <a 
-          href="#" 
-          className="flex items-center space-x-2"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToTop();
-          }}
-          aria-label="Pulse Robot"
-        >
-          <img 
-            src="/logo.svg" 
-            alt="Pulse Robot Logo" 
-            className="h-7 sm:h-8" 
-          />
-        </a>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled ? 'bg-white/95 backdrop-blur-md shadow-elegant' : 'bg-transparent'
+    }`}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 lg:h-20">
+          {/* Logo */}
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-pulse-500 to-pulse-600 rounded-lg flex items-center justify-center text-white font-bold text-sm lg:text-base">
+              P
+            </div>
+            <span className="text-lg lg:text-xl font-display font-bold text-gray-900">
+              Pulse Robot
+            </span>
+          </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-8">
-          <a 
-            href="#" 
-            className="nav-link"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToTop();
-            }}
-          >
-            Home
-          </a>
-          <a href="#features" className="nav-link">About</a>
-          <a href="#details" className="nav-link">Contact</a>
-        </nav>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="text-gray-700 hover:text-pulse-600 transition-colors duration-200 font-medium"
+              >
+                {item.name}
+              </a>
+            ))}
+          </div>
 
-        {/* Mobile menu button - increased touch target */}
-        <button 
-          className="md:hidden text-gray-700 p-3 focus:outline-none" 
-          onClick={toggleMenu}
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+          {/* Desktop User Menu */}
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Button 
+                className="bg-pulse-500 hover:bg-pulse-600 text-white"
+                onClick={() => window.location.href = '/login'}
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            {user && <UserMenu />}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2"
+            >
+              {isOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200 py-4 space-y-2 animate-fade-in">
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="block px-4 py-2 text-gray-700 hover:text-pulse-600 hover:bg-pulse-50 rounded-lg transition-colors duration-200"
+                onClick={() => setIsOpen(false)}
+              >
+                {item.name}
+              </a>
+            ))}
+            {!user && (
+              <div className="px-4 pt-2">
+                <Button 
+                  className="w-full bg-pulse-500 hover:bg-pulse-600 text-white"
+                  onClick={() => window.location.href = '/login'}
+                >
+                  Sign In
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-
-      {/* Mobile Navigation - improved for better touch experience */}
-      <div className={cn(
-        "fixed inset-0 z-40 bg-white flex flex-col pt-16 px-6 md:hidden transition-all duration-300 ease-in-out",
-        isMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
-      )}>
-        <nav className="flex flex-col space-y-8 items-center mt-8">
-          <a 
-            href="#" 
-            className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToTop();
-              setIsMenuOpen(false);
-              document.body.style.overflow = '';
-            }}
-          >
-            Home
-          </a>
-          <a 
-            href="#features" 
-            className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
-            onClick={() => {
-              setIsMenuOpen(false);
-              document.body.style.overflow = '';
-            }}
-          >
-            About
-          </a>
-          <a 
-            href="#details" 
-            className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
-            onClick={() => {
-              setIsMenuOpen(false);
-              document.body.style.overflow = '';
-            }}
-          >
-            Contact
-          </a>
-        </nav>
-      </div>
-    </header>
+    </nav>
   );
 };
 
