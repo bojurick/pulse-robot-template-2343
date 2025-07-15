@@ -8,6 +8,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import LoginPage from "./pages/LoginPage";
+import SettingsPage from "./pages/SettingsPage";
+import WorkflowHub from "./pages/WorkflowHub";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -27,6 +29,22 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <Index />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <SettingsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/workflows" 
+                  element={
+                    <ProtectedRoute>
+                      <WorkflowHub />
                     </ProtectedRoute>
                   } 
                 />

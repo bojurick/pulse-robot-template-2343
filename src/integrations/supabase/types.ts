@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      n8n_instances: {
+        Row: {
+          api_key: string
+          base_url: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          base_url: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          base_url?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      n8n_workflows: {
+        Row: {
+          created_at: string
+          description: string | null
+          http_method: string
+          id: string
+          instance_id: string
+          name: string
+          type: string
+          updated_at: string
+          user_id: string
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          http_method?: string
+          id?: string
+          instance_id: string
+          name: string
+          type: string
+          updated_at?: string
+          user_id: string
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          http_method?: string
+          id?: string
+          instance_id?: string
+          name?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "n8n_workflows_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "n8n_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
