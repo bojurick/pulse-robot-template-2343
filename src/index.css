@@ -47,6 +47,30 @@
 
     --radius: 0.5rem;
 
+    /* Modern Glassmorphism & Effects */
+    --glass-background: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --glass-backdrop: blur(12px);
+    
+    /* AI-themed gradients */
+    --gradient-ai: linear-gradient(135deg, hsl(var(--primary)) 0%, #667eea 100%);
+    --gradient-productivity: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    
+    /* Productivity-focused colors */
+    --success: 142 76% 36%;
+    --success-foreground: 355 7% 97%;
+    --warning: 43 96% 56%;
+    --warning-foreground: 225 9% 9%;
+    --info: 217 91% 60%;
+    --info-foreground: 210 40% 98%;
+    
+    /* Dashboard widget colors */
+    --widget-background: rgba(255, 255, 255, 0.95);
+    --widget-border: rgba(0, 0, 0, 0.08);
+    --widget-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -85,6 +109,23 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
+    /* Dark mode glassmorphism */
+    --glass-background: rgba(30, 30, 30, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --glass-backdrop: blur(12px);
+    
+    /* Dark mode gradients */
+    --gradient-ai: linear-gradient(135deg, hsl(var(--primary)) 0%, #4c63d2 100%);
+    --gradient-productivity: linear-gradient(135deg, #bc4e9c 0%, #f39800 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    
+    /* Dark mode widget colors */
+    --widget-background: rgba(30, 30, 30, 0.95);
+    --widget-border: rgba(255, 255, 255, 0.1);
+    --widget-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -151,27 +192,91 @@
   }
 
   .section-subtitle {
-    @apply text-lg md:text-xl text-gray-600 mt-4 max-w-3xl;
+    @apply text-lg md:text-xl text-muted-foreground mt-4 max-w-3xl;
   }
 
+  /* Modern Glassmorphism Cards */
   .glass-card {
-    @apply bg-white/70 backdrop-blur-sm border border-white/20 rounded-2xl shadow-elegant transition-all duration-300 hover:shadow-elegant-hover;
+    background: var(--glass-background);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    @apply rounded-2xl transition-all duration-300 hover:scale-[1.02];
+  }
+
+  .glass-widget {
+    background: var(--widget-background);
+    border: 1px solid var(--widget-border);
+    box-shadow: var(--widget-shadow);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    @apply rounded-xl transition-all duration-300 hover:shadow-lg;
   }
 
   .feature-card {
-    @apply p-6 rounded-2xl transition-all duration-500 hover:translate-y-[-5px];
+    @apply p-6 rounded-2xl transition-all duration-500 hover:translate-y-[-2px] hover:shadow-lg;
+  }
+  
+  /* AI-themed buttons */
+  .button-ai {
+    background: var(--gradient-ai);
+    @apply text-white font-medium py-3 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] border-0;
+  }
+
+  .button-productivity {
+    background: var(--gradient-productivity);
+    @apply text-white font-medium py-3 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] border-0;
   }
   
   .button-primary {
-    @apply bg-pulse-500 hover:bg-pulse-600 text-white font-medium py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98];
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98];
   }
 
   .button-secondary {
-    @apply bg-transparent border border-gray-300 hover:border-pulse-500 text-gray-800 hover:text-pulse-500 font-medium py-3 px-6 rounded-full transition-all duration-300;
+    @apply bg-transparent border border-border hover:border-primary text-foreground hover:text-primary font-medium py-3 px-6 rounded-full transition-all duration-300;
   }
   
   .nav-link {
-    @apply relative text-gray-800 hover:text-pulse-500 py-2 transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-pulse-500 after:transition-all hover:after:w-full;
+    @apply relative text-foreground hover:text-primary py-2 transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all hover:after:w-full;
+  }
+
+  /* Dashboard grid system */
+  .dashboard-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min;
+  }
+
+  .widget-container {
+    @apply glass-widget p-6 cursor-pointer select-none;
+  }
+
+  /* Productivity status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full inline-block mr-2;
+  }
+  
+  .status-active { @apply bg-green-400; }
+  .status-pending { @apply bg-yellow-400; }
+  .status-inactive { @apply bg-gray-400; }
+  .status-error { @apply bg-red-400; }
+
+  /* Modern scroll areas */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted));
+    border-radius: 3px;
   }
 }
 

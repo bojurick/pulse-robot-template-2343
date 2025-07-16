@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_sessions: {
+        Row: {
+          agent_type: string
+          created_at: string
+          id: string
+          messages: Json | null
+          metadata: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agent_type?: string
+          created_at?: string
+          id?: string
+          messages?: Json | null
+          metadata?: Json | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agent_type?: string
+          created_at?: string
+          id?: string
+          messages?: Json | null
+          metadata?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      dashboard_widgets: {
+        Row: {
+          config: Json | null
+          created_at: string
+          height: number
+          id: string
+          is_visible: boolean
+          position_x: number
+          position_y: number
+          updated_at: string
+          user_id: string
+          widget_type: string
+          width: number
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          height?: number
+          id?: string
+          is_visible?: boolean
+          position_x?: number
+          position_y?: number
+          updated_at?: string
+          user_id: string
+          widget_type: string
+          width?: number
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          height?: number
+          id?: string
+          is_visible?: boolean
+          position_x?: number
+          position_y?: number
+          updated_at?: string
+          user_id?: string
+          widget_type?: string
+          width?: number
+        }
+        Relationships: []
+      }
       n8n_instances: {
         Row: {
           api_key: string
@@ -115,6 +190,81 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          metadata: Json | null
+          priority: string
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          ai_preferences: Json | null
+          created_at: string
+          dashboard_layout: Json | null
+          id: string
+          notification_settings: Json | null
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_preferences?: Json | null
+          created_at?: string
+          dashboard_layout?: Json | null
+          id?: string
+          notification_settings?: Json | null
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_preferences?: Json | null
+          created_at?: string
+          dashboard_layout?: Json | null
+          id?: string
+          notification_settings?: Json | null
+          theme?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
