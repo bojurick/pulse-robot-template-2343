@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Home, 
@@ -110,13 +109,19 @@ export function AppSidebar() {
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-2 mb-4"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                <Target className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <h2 className="text-sm font-semibold text-sidebar-foreground">AI Command</h2>
-                <p className="text-xs text-sidebar-foreground/60">Productivity Hub</p>
-              </div>
+              <Link 
+                to="/" 
+                className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
+                aria-label="Navigate to home"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center group-hover:shadow-lg transition-shadow">
+                  <Target className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-sidebar-foreground group-hover:text-primary transition-colors">AI Command</h2>
+                  <p className="text-xs text-sidebar-foreground/60">Productivity Hub</p>
+                </div>
+              </Link>
             </motion.div>
             
             <div className="relative">
@@ -127,6 +132,19 @@ export function AppSidebar() {
                 aria-label="Search or command"
               />
             </div>
+          </div>
+        )}
+
+        {/* Collapsed state home button */}
+        {collapsed && (
+          <div className="p-2 border-b border-sidebar-border">
+            <Link 
+              to="/" 
+              className="flex items-center justify-center w-full p-2 rounded-lg hover:bg-sidebar-accent transition-colors"
+              aria-label="Navigate to home"
+            >
+              <Target className="h-4 w-4 text-primary" />
+            </Link>
           </div>
         )}
 

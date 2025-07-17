@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
@@ -26,6 +25,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { PageHeader } from "@/components/navigation/PageHeader";
 import { useAppStore } from "@/store/useAppStore";
 import { useToast } from "@/hooks/use-toast";
 
@@ -243,25 +243,19 @@ const TasksPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <div className="container-professional">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between py-6 border-b border-border"
+        {/* Enhanced Header with Navigation */}
+        <PageHeader
+          title="Task Management"
+          description="Organize and track your productivity"
+          className="py-6 border-b border-border"
         >
-          <div>
-            <h1 className="text-heading-2">Task Management</h1>
-            <p className="text-body text-muted-foreground mt-1">
-              Organize and track your productivity
-            </p>
-          </div>
           <Button className="btn-primary">
             <Plus className="h-4 w-4 mr-2" />
             Create Task
           </Button>
-        </motion.div>
+        </PageHeader>
 
         {/* Stats Cards */}
         <motion.div

@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import { useAccessibility } from "@/hooks/useAccessibility";
 import { usePerformance } from "@/hooks/usePerformance";
 import { preventEmptyLinkNavigation } from "@/utils/linkValidation";
@@ -167,6 +168,9 @@ const App = () => {
                   </LazyWrapper>
                 } />
               </Routes>
+              
+              {/* Mobile Bottom Navigation */}
+              <MobileBottomNav />
             </main>
             
             <Toaster />
