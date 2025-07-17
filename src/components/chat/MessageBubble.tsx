@@ -82,31 +82,34 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onReply, onBranc
                   {message.content}
                 </p>
               ) : (
-                <ReactMarkdown
-                  className="text-foreground leading-relaxed"
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || '');
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          style={vscDarkPlus}
-                          language={match[1]}
-                          PreTag="div"
-                          className="rounded-md"
-                          {...props}
-                        >
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code className="bg-muted px-1 py-0.5 rounded text-sm" {...props}>
-                          {children}
-                        </code>
-                      );
-                    }
-                  }}
-                >
-                  {message.content}
-                </ReactMarkdown>
+                <div className="text-foreground leading-relaxed">
+                  <ReactMarkdown
+                    components={{
+                      code: ({ node, children, className, ...props }) => {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const isInline = !match;
+                        
+                        return isInline ? (
+                          <code className="bg-muted px-1 py-0.5 rounded text-sm" {...props}>
+                            {children}
+                          </code>
+                        ) : (
+                          <SyntaxHighlighter
+                            style={vscDarkPlus as { [key: string]: React.CSSProperties }}
+                            language={match[1]}
+                            PreTag="div"
+                            className="rounded-md"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        );
+                      }
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
               )}
             </div>
             
