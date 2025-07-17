@@ -1,3 +1,4 @@
+
 import { n8nWorkflowUtils } from "./n8nUtils";
 import { toast } from "@/hooks/use-toast";
 
@@ -7,10 +8,19 @@ export interface WebhookTriggerOptions {
   queryParams?: Record<string, string>;
 }
 
+export interface WebhookResponse {
+  success: boolean;
+  status: number;
+  data: any;
+  workflow: any;
+  contentType?: string;
+  headers?: Record<string, string>;
+}
+
 export const triggerWebhook = async (
   workflowId: string,
   options: WebhookTriggerOptions = {}
-) => {
+): Promise<WebhookResponse> => {
   try {
     // Fetch workflow details from database
     const workflow = await n8nWorkflowUtils.getById(workflowId);
@@ -48,24 +58,39 @@ export const triggerWebhook = async (
     console.log(`Triggering webhook: ${http_method} ${url.toString()}`);
     
     const response = await fetch(url.toString(), requestConfig);
+    const contentType = response.headers.get('content-type') || '';
     
+    let responseData: any;
+    
+    // Handle different response types
+    if (contentType.includes('application/json')) {
+      responseData = await response.json();
+    } else if (contentType.includes('text/')) {
+      responseData = await response.text();
+    } else {
+      // Handle binary data
+      responseData = await response.text();
+    }
+    
+    const result: WebhookResponse = {
+      success: response.ok,
+      status: response.status,
+      data: responseData,
+      workflow: workflow,
+      contentType,
+      headers: Object.fromEntries(response.headers.entries())
+    };
+
     if (!response.ok) {
       throw new Error(`Webhook failed with status: ${response.status}`);
     }
 
-    const responseData = await response.text();
-    
     toast({
-      title: "Webhook triggered! 🎯",
+      title: "Workflow triggered! 🎯",
       description: `Successfully executed ${workflow.name} workflow`,
     });
 
-    return {
-      success: true,
-      status: response.status,
-      data: responseData,
-      workflow: workflow
-    };
+    return result;
   } catch (error) {
     console.error('Webhook trigger error:', error);
     
