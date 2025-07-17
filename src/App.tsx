@@ -7,6 +7,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import Index from "./pages/Index";
+import ChatPage from "./pages/ChatPage";
+import TasksPage from "./pages/TasksPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 import LoginPage from "./pages/LoginPage";
 import SettingsPage from "./pages/SettingsPage";
 import WorkflowHub from "./pages/WorkflowHub";
@@ -33,10 +36,26 @@ const App = () => {
                   } 
                 />
                 <Route 
-                  path="/settings" 
+                  path="/chat" 
                   element={
                     <ProtectedRoute>
-                      <SettingsPage />
+                      <ChatPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/tasks" 
+                  element={
+                    <ProtectedRoute>
+                      <TasksPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/analytics" 
+                  element={
+                    <ProtectedRoute>
+                      <AnalyticsPage />
                     </ProtectedRoute>
                   } 
                 />
@@ -45,6 +64,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <WorkflowHub />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <SettingsPage />
                     </ProtectedRoute>
                   } 
                 />
