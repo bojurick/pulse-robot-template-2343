@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -114,7 +115,7 @@ const SubmissionHistory: React.FC<SubmissionHistoryProps> = ({ workflowId }) => 
     }
   };
 
-  const handleExport = (format: 'csv' | 'pdf') => {
+  const handleExport = (exportFormat: 'csv' | 'pdf') => {
     // Mock export functionality
     const data = filteredSubmissions.map(submission => ({
       ID: submission.id,
@@ -125,7 +126,7 @@ const SubmissionHistory: React.FC<SubmissionHistoryProps> = ({ workflowId }) => 
       Data: JSON.stringify(submission.data)
     }));
 
-    if (format === 'csv') {
+    if (exportFormat === 'csv') {
       const headers = Object.keys(data[0] || {});
       const csvContent = [
         headers.join(','),

@@ -26,7 +26,7 @@ interface FormField {
   placeholder?: string;
   required?: boolean;
   options?: { value: string; label: string; }[];
-  validation?: any;
+  validation?: z.ZodSchema<any>;
   conditional?: {
     dependsOn: string;
     showWhen: any;
@@ -132,10 +132,12 @@ const FormRenderer: React.FC<FormRendererProps> = ({
 
   // Create dynamic schema based on form fields
   const createSchema = () => {
-    const schemaFields: Record<string, any> = {};
+    const schemaFields: Record<string, z.ZodSchema<any>> = {};
     formFields.forEach(field => {
       if (field.validation) {
         schemaFields[field.name] = field.validation;
+      } else if (field.type === 'checkbox') {
+        schemaFields[field.name] = z.boolean().optional();
       } else {
         schemaFields[field.name] = field.required ? z.string().min(1) : z.string().optional();
       }
@@ -145,7 +147,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({
 
   const form = useForm({
     resolver: zodResolver(createSchema()),
-    defaultValues: {},
+    defaultValues: {} as Record<string, any>,
     mode: 'onChange'
   });
 
@@ -302,7 +304,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({
               case 'select':
                 return (
                   <div>
-                    <Select value={formField.value} onValueChange={formField.onChange}>
+                    <Select value={formField.value || ''} onValueChange={formField.onChange}>
                       <SelectTrigger className={`form-control ${
                         fieldState.error 
                           ? 'border-destructive focus:border-destructive' 
@@ -420,7 +422,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({
                   <div key={field.name} className="flex justify-between py-2 border-b border-border/50">
                     <span className="font-medium text-sm">{field.label}:</span>
                     <span className="text-sm text-muted-foreground">
-                      {field.type === 'checkbox' ? (value ? 'Yes' : 'No') : value}
+                      {field.type === 'checkbox' ? (value ? 'Yes' : 'No') : String(value)}
                     </span>
                   </div>
                 );
