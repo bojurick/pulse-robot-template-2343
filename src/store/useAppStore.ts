@@ -78,6 +78,7 @@ interface AppState {
   
   fetchChatSessions: () => Promise<void>;
   createChatSession: (session: Omit<ChatSession, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  updateChatSession: (id: string, updates: Partial<ChatSession>) => Promise<void>;
   
   fetchUserPreferences: () => Promise<void>;
   updateUserPreferences: (updates: Partial<UserPreferences>) => Promise<void>;
@@ -242,6 +243,27 @@ export const useAppStore = create<AppState>((set, get) => ({
       
       const currentSessions = get().chatSessions;
       set({ chatSessions: [data, ...currentSessions] });
+    } catch (error) {
+      set({ error: (error as Error).message });
+    }
+  },
+
+  updateChatSession: async (id, updates) => {
+    try {
+      const { data, error } = await supabase
+        .from('chat_sessions')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      const currentSessions = get().chatSessions;
+      const updatedSessions = currentSessions.map(session => 
+        session.id === id ? { ...session, ...data } : session
+      );
+      set({ chatSessions: updatedSessions });
     } catch (error) {
       set({ error: (error as Error).message });
     }

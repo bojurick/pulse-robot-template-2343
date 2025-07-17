@@ -138,7 +138,7 @@ const ChatPage = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { chatSessions, createChatSession, updateChatSession } = useAppStore();
+  const { chatSessions, createChatSession } = useAppStore();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
