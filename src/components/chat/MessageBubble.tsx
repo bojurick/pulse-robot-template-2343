@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Bot, User, Copy, ThumbsUp, ThumbsDown, MoreHorizontal } from "lucide-react";
@@ -95,11 +94,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onReply, onBranc
                           </code>
                         ) : (
                           <SyntaxHighlighter
-                            style={vscDarkPlus as { [key: string]: React.CSSProperties }}
+                            style={vscDarkPlus}
                             language={match[1]}
                             PreTag="div"
                             className="rounded-md"
-                            {...props}
                           >
                             {String(children).replace(/\n$/, '')}
                           </SyntaxHighlighter>
