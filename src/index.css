@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
@@ -129,6 +128,31 @@
     --sidebar-border: 0 0% 15%;
     --sidebar-ring: 329 100% 60%;
   }
+
+  /* High contrast mode support */
+  .high-contrast {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --primary: 329 100% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 85%;
+    --secondary-foreground: 0 0% 0%;
+    --border: 0 0% 20%;
+    --input: 0 0% 85%;
+    --ring: 329 100% 35%;
+  }
+
+  .high-contrast.dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --primary: 329 100% 70%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --border: 0 0% 80%;
+    --input: 0 0% 15%;
+    --ring: 329 100% 70%;
+  }
 }
 
 @layer base {
@@ -141,14 +165,40 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
+  /* Enhanced accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* Smooth scrolling and focus management */
   html {
     scroll-behavior: smooth;
   }
 
-  /* Enhanced focus indicators for accessibility */
+  /* Focus indicators */
   *:focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary;
+    @apply outline-2 outline-offset-2 outline-primary ring-2 ring-primary ring-offset-2;
+  }
+
+  .high-contrast *:focus-visible {
+    @apply outline-4 outline-offset-4 ring-4 ring-offset-4;
+  }
+
+  /* Skip to main content link */
+  .skip-link {
+    @apply absolute -top-10 left-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md transform -translate-y-full transition-transform;
+  }
+
+  .skip-link:focus {
+    @apply translate-y-0;
   }
 
   /* Custom scrollbar styling */
@@ -201,6 +251,44 @@
 
   .btn-ghost {
     @apply bg-transparent hover:bg-accent text-foreground hover:text-accent-foreground font-medium py-2 px-4 rounded-lg transition-all duration-200;
+  }
+
+  /* Enhanced interactive elements */
+  .interactive-element {
+    @apply transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02] active:scale-[0.98];
+  }
+
+  .interactive-element:disabled {
+    @apply opacity-50 cursor-not-allowed hover:scale-100 focus:scale-100;
+  }
+
+  /* Magenta gradient backgrounds */
+  .magenta-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 50%, hsl(var(--background)) 100%);
+  }
+
+  .magenta-gradient-subtle {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background)) 100%);
+  }
+
+  /* Professional loading states */
+  .loading-skeleton {
+    @apply animate-pulse bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800;
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Enhanced form controls */
+  .form-control-enhanced {
+    @apply form-control relative;
+  }
+
+  .form-control-enhanced:invalid {
+    @apply border-destructive ring-destructive ring-1;
+  }
+
+  .form-control-enhanced:valid {
+    @apply border-success ring-success ring-1;
   }
 
   /* Professional navigation */
@@ -274,6 +362,34 @@
 
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+}
+
+/* Performance optimizations */
+@layer utilities {
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-opacity {
+    will-change: opacity;
+  }
+
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-safe\:animate-none {
+      animation: none !important;
+    }
+    
+    .motion-safe\:transition-none {
+      transition: none !important;
+    }
   }
 }
 
