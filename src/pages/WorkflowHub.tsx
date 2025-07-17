@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,16 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Workflow, MessageCircle, FileText, MousePointer, Play, Settings2, Plus, Trash2 } from 'lucide-react';
+import { Workflow, MessageCircle, FileText, MousePointer, Play, Settings2, Plus, Trash2, History, Edit3 } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { n8nWorkflowUtils, N8nWorkflowWithInstance } from "@/lib/n8nUtils";
 import { triggerWebhook } from "@/lib/webhookUtils";
 import RobotSpinner from "@/components/RobotSpinner";
+import FormRenderer from "@/components/workflow/FormRenderer";
+import SubmissionHistory from "@/components/workflow/SubmissionHistory";
 
 const configSchema = z.object({
   headers: z.string().optional(),
@@ -33,6 +37,7 @@ const WorkflowHub = () => {
   const [loading, setLoading] = useState(true);
   const [triggering, setTriggering] = useState(false);
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('interact');
   const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
   const [chatInput, setChatInput] = useState('');
   const [formData, setFormData] = useState<Record<string, any>>({});
@@ -127,6 +132,22 @@ const WorkflowHub = () => {
     }
   };
 
+  const handleFormSubmit = async (data: any) => {
+    if (!selectedWorkflow) return;
+    
+    await handleSimpleTrigger(data);
+    
+    toast({
+      title: "Form submitted successfully! 🎉",
+      description: "Your form data has been processed by the workflow.",
+    });
+  };
+
+  const handleSaveDraft = (data: any) => {
+    // In a real app, this would save to Supabase
+    localStorage.setItem(`form-draft-${selectedWorkflow?.id}`, JSON.stringify(data));
+  };
+
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || !selectedWorkflow) return;
@@ -138,18 +159,20 @@ const WorkflowHub = () => {
     await handleSimpleTrigger({ message: chatInput, conversation: chatMessages });
   };
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedWorkflow) return;
-
-    await handleSimpleTrigger(formData);
-    setFormData({});
-  };
-
   const renderWorkflowInterface = () => {
     if (!selectedWorkflow) return null;
 
     switch (selectedWorkflow.type) {
+      case 'form':
+        return (
+          <FormRenderer
+            workflow={selectedWorkflow}
+            onSubmit={handleFormSubmit}
+            onSaveDraft={handleSaveDraft}
+            isSubmitting={triggering}
+          />
+        );
+
       case 'chat':
         return (
           <div className="space-y-4">
@@ -177,52 +200,10 @@ const WorkflowHub = () => {
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Type your message..."
                 disabled={triggering}
+                className="focus:border-primary focus:ring-primary"
               />
-              <Button type="submit" disabled={triggering || !chatInput.trim()}>
+              <Button type="submit" disabled={triggering || !chatInput.trim()} className="btn-primary">
                 {triggering ? <RobotSpinner /> : <MessageCircle className="h-4 w-4" />}
-              </Button>
-            </form>
-          </div>
-        );
-
-      case 'form':
-        return (
-          <div className="space-y-4">
-            <form onSubmit={handleFormSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Enter name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="Enter email"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="message">Message</Label>
-                <Textarea
-                  id="message"
-                  value={formData.message || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                  placeholder="Enter your message"
-                  rows={4}
-                />
-              </div>
-              <Button type="submit" disabled={triggering} className="w-full">
-                {triggering ? <RobotSpinner /> : <FileText className="h-4 w-4 mr-2" />}
-                Submit Form
               </Button>
             </form>
           </div>
@@ -251,7 +232,7 @@ const WorkflowHub = () => {
                 </Button>
                 <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="flex-1">
+                    <Button className="flex-1 btn-primary">
                       <Settings2 className="h-4 w-4 mr-2" />
                       Configure & Trigger
                     </Button>
@@ -275,6 +256,7 @@ const WorkflowHub = () => {
                                 <Textarea
                                   placeholder='{"Authorization": "Bearer token", "X-Custom": "value"}'
                                   {...field}
+                                  className="form-control"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -292,6 +274,7 @@ const WorkflowHub = () => {
                                   placeholder='{"action": "trigger", "data": {"key": "value"}}'
                                   rows={4}
                                   {...field}
+                                  className="form-control"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -308,6 +291,7 @@ const WorkflowHub = () => {
                                 <Textarea
                                   placeholder='{"param1": "value1", "param2": "value2"}'
                                   {...field}
+                                  className="form-control"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -315,7 +299,7 @@ const WorkflowHub = () => {
                           )}
                         />
                         <DialogFooter>
-                          <Button type="submit" disabled={triggering}>
+                          <Button type="submit" disabled={triggering} className="btn-primary">
                             {triggering ? <RobotSpinner /> : "Trigger Workflow"}
                           </Button>
                         </DialogFooter>
@@ -368,14 +352,14 @@ const WorkflowHub = () => {
                   Create your first workflow in the settings to get started.
                 </p>
               </div>
-              <Button asChild>
+              <Button asChild className="btn-primary">
                 <a href="/settings">Go to Settings</a>
               </Button>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Workflow List */}
           <div className="lg:col-span-1">
             <Card>
@@ -389,10 +373,10 @@ const WorkflowHub = () => {
                 {workflows.map((workflow) => (
                   <div
                     key={workflow.id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                    className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
                       selectedWorkflow?.id === workflow.id
-                        ? 'border-primary bg-primary/5'
-                        : 'hover:bg-muted/50'
+                        ? 'border-primary bg-primary/5 shadow-sm'
+                        : 'hover:bg-muted/50 hover:border-border'
                     }`}
                     onClick={() => setSelectedWorkflow(workflow)}
                   >
@@ -427,7 +411,7 @@ const WorkflowHub = () => {
           </div>
 
           {/* Workflow Interface */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             {selectedWorkflow ? (
               <Card>
                 <CardHeader>
@@ -447,8 +431,28 @@ const WorkflowHub = () => {
                     </div>
                   </div>
                 </CardHeader>
+                
                 <CardContent>
-                  {renderWorkflowInterface()}
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="interact" className="flex items-center space-x-2">
+                        <Play className="h-4 w-4" />
+                        <span>Interact</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="history" className="flex items-center space-x-2">
+                        <History className="h-4 w-4" />
+                        <span>History</span>
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="interact" className="mt-6">
+                      {renderWorkflowInterface()}
+                    </TabsContent>
+                    
+                    <TabsContent value="history" className="mt-6">
+                      <SubmissionHistory workflowId={selectedWorkflow.id} />
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
             ) : (
