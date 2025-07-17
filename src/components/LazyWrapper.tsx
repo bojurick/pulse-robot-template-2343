@@ -32,17 +32,17 @@ export const LazyWrapper: React.FC<LazyWrapperProps> = ({
 };
 
 // Higher-order component for lazy loading
-export const withLazyLoading = <P extends object>(
+export const withLazyLoading = <P extends Record<string, any>>(
   Component: ComponentType<P>,
   fallback?: React.ReactNode
 ) => {
   const LazyComponent = lazy(() => Promise.resolve({ default: Component }));
   
-  return (props: P) => (
+  return React.forwardRef<any, P>((props, ref) => (
     <LazyWrapper fallback={fallback}>
-      <LazyComponent {...props} />
+      <LazyComponent {...props} ref={ref} />
     </LazyWrapper>
-  );
+  ));
 };
 
 // Utility for creating lazy-loaded route components
