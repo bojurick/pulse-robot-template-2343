@@ -64,12 +64,13 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
+        // Use a direct query to avoid TypeScript issues during types generation
         const { data, error } = await supabase
-          .from('workflow_configs')
+          .from('workflow_configs' as any)
           .select('*')
           .eq('workflow_id', workflow.id)
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (data && !error) {
           const config = data.config as ConfigFormData;
@@ -96,7 +97,7 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
       if (!user) return;
 
       const { error } = await supabase
-        .from('workflow_configs')
+        .from('workflow_configs' as any)
         .upsert({
           workflow_id: workflow.id,
           user_id: user.id,
