@@ -268,6 +268,53 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_executions: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          execution_time_ms: number | null
+          file_urls: string[] | null
+          id: string
+          request_data: Json | null
+          response_data: Json | null
+          status: string
+          user_id: string
+          workflow_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          file_urls?: string[] | null
+          id?: string
+          request_data?: Json | null
+          response_data?: Json | null
+          status?: string
+          user_id: string
+          workflow_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          file_urls?: string[] | null
+          id?: string
+          request_data?: Json | null
+          response_data?: Json | null
+          status?: string
+          user_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_executions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "n8n_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

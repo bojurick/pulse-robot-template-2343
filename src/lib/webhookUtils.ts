@@ -1,6 +1,7 @@
 
 import { n8nWorkflowUtils } from "./n8nUtils";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface WebhookTriggerOptions {
   headers?: Record<string, string>;
@@ -16,6 +17,26 @@ export interface WebhookResponse {
   contentType?: string;
   headers?: Record<string, string>;
 }
+
+const uploadFileToSupabase = async (fileBlob: Blob, filename: string): Promise<string> => {
+  const { data, error } = await supabase.storage
+    .from('n8n')
+    .upload(`workflow-results/${Date.now()}-${filename}`, fileBlob, {
+      contentType: fileBlob.type,
+      upsert: false
+    });
+
+  if (error) {
+    console.error('File upload error:', error);
+    throw new Error('Failed to upload file to storage');
+  }
+
+  const { data: urlData } = supabase.storage
+    .from('n8n')
+    .getPublicUrl(data.path);
+
+  return urlData.publicUrl;
+};
 
 export const triggerWebhook = async (
   workflowId: string,
@@ -61,14 +82,42 @@ export const triggerWebhook = async (
     const contentType = response.headers.get('content-type') || '';
     
     let responseData: any;
+    let fileUrls: string[] = [];
     
     // Handle different response types
     if (contentType.includes('application/json')) {
       responseData = await response.json();
     } else if (contentType.includes('text/')) {
       responseData = await response.text();
+    } else if (contentType.includes('application/octet-stream') || 
+               contentType.includes('application/pdf') ||
+               contentType.includes('image/') ||
+               contentType.includes('audio/') ||
+               contentType.includes('video/')) {
+      // Handle binary files
+      const blob = await response.blob();
+      const filename = response.headers.get('content-disposition')?.split('filename=')[1]?.replace(/"/g, '') || 
+                     `file-${Date.now()}.${contentType.split('/')[1]}`;
+      
+      try {
+        const fileUrl = await uploadFileToSupabase(blob, filename);
+        fileUrls.push(fileUrl);
+        responseData = {
+          message: 'File downloaded successfully',
+          fileUrls: fileUrls,
+          filename: filename,
+          contentType: contentType,
+          size: blob.size
+        };
+      } catch (uploadError) {
+        console.error('File upload failed:', uploadError);
+        responseData = {
+          error: 'File download succeeded but upload to storage failed',
+          contentType: contentType
+        };
+      }
     } else {
-      // Handle binary data
+      // Fallback for other content types
       responseData = await response.text();
     }
     
