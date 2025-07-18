@@ -64,7 +64,7 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Use a direct query to avoid TypeScript issues during types generation
+        // Query the workflow_configs table with proper type handling
         const { data, error } = await supabase
           .from('workflow_configs' as any)
           .select('*')
