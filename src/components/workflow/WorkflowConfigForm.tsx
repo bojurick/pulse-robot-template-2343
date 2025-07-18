@@ -73,16 +73,17 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
           .maybeSingle();
 
         if (data && !error) {
-          // Properly type the config data
-          const configData = data as { config: ConfigFormData };
-          const config = configData.config;
-          setSavedConfig(config);
-          
-          // Pre-fill form with saved config
-          setValue('body', config.body || '{}');
-          setValue('method', config.method || workflow.http_method);
-          setValue('headers', config.headers || [{ key: 'Content-Type', value: 'application/json' }]);
-          setValue('queryParams', config.queryParams || []);
+          // Safely access the config property with proper type checking
+          if (data && typeof data === 'object' && 'config' in data) {
+            const config = (data as any).config;
+            setSavedConfig(config);
+            
+            // Pre-fill form with saved config
+            setValue('body', config.body || '{}');
+            setValue('method', config.method || workflow.http_method);
+            setValue('headers', config.headers || [{ key: 'Content-Type', value: 'application/json' }]);
+            setValue('queryParams', config.queryParams || []);
+          }
         }
       } catch (error) {
         console.error('Error loading saved config:', error);
