@@ -71,7 +71,8 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (data && !error && typeof data === 'object' && 'config' in data) {
+        // Explicit null check and type guard
+        if (!error && data !== null && typeof data === 'object' && 'config' in data) {
           const config = (data as any).config;
           setSavedConfig(config);
           
