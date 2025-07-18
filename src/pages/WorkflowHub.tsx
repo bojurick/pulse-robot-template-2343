@@ -23,7 +23,6 @@ import { triggerWebhook } from "@/lib/webhookUtils";
 import RobotSpinner from "@/components/RobotSpinner";
 import FormRenderer from "@/components/workflow/FormRenderer";
 import SubmissionHistory from "@/components/workflow/SubmissionHistory";
-import { PageHeader } from "@/components/navigation/PageHeader";
 import { useNavigate } from 'react-router-dom';
 
 const configSchema = z.object({
@@ -455,196 +454,188 @@ const WorkflowHub = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <PageHeader 
-          title="Workflow Hub" 
-          description="Manage and execute your n8n workflows"
-          showBackButton={true}
-          showBreadcrumbs={true}
-        />
-        <div className="flex-1 flex items-center justify-center">
-          <RobotSpinner />
-        </div>
+      <div className="flex-1 flex items-center justify-center">
+        <RobotSpinner />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <PageHeader 
-        title="Workflow Hub" 
-        description="Manage and execute your n8n workflows"
-        showBackButton={true}
-        showBreadcrumbs={true}
-      >
-        <div className="flex items-center space-x-2">
-          <Workflow className="h-6 w-6 text-primary" />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Workflow Hub</h1>
+          <p className="text-muted-foreground mt-1">Manage and execute your n8n workflows</p>
         </div>
-      </PageHeader>
+        <div className="flex items-center space-x-2">
+          <Workflow className="h-6 w-6 text-[#E20074]" />
+        </div>
+      </div>
 
-      <div className="flex-1 container mx-auto p-6 space-y-6">
-        {workflows.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <Workflow className="h-16 w-16 mx-auto text-muted-foreground" />
-                <div>
-                  <h3 className="text-lg font-semibold">No workflows found</h3>
-                  <p className="text-muted-foreground">
-                    Create your first workflow in the settings to get started.
-                  </p>
-                </div>
-                <Button 
-                  onClick={() => navigate('/settings')} 
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  Go to Settings
-                </Button>
+      {workflows.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <Workflow className="h-16 w-16 mx-auto text-muted-foreground" />
+              <div>
+                <h3 className="text-lg font-semibold">No workflows found</h3>
+                <p className="text-muted-foreground">
+                  Create your first workflow in the settings to get started.
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Workflow List */}
-            <div className="lg:col-span-1">
+              <Button 
+                onClick={() => navigate('/settings')} 
+                className="bg-[#E20074] hover:bg-[#E20074]/90 text-white"
+              >
+                Go to Settings
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Workflow List */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Workflows</CardTitle>
+                <CardDescription>
+                  Select a workflow to interact with
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {workflows.map((workflow) => (
+                  <motion.div
+                    key={workflow.id}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
+                      selectedWorkflow?.id === workflow.id
+                        ? 'border-[#E20074] bg-[#E20074]/5 shadow-sm'
+                        : 'hover:bg-muted/50 hover:border-border'
+                    }`}
+                    onClick={() => {
+                      setSelectedWorkflow(workflow);
+                      setShowResults(false);
+                      setLastResult(null);
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {getTypeIcon(workflow.type)}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{workflow.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {workflow.n8n_instances.name}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Badge variant="secondary" className="text-xs">
+                          {workflow.type}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {workflow.http_method}
+                        </Badge>
+                      </div>
+                    </div>
+                    {workflow.description && (
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {workflow.description}
+                      </p>
+                    )}
+                  </motion.div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Workflow Interface */}
+          <div className="lg:col-span-3">
+            {selectedWorkflow ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Your Workflows</CardTitle>
-                  <CardDescription>
-                    Select a workflow to interact with
-                  </CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center space-x-2">
+                        {getTypeIcon(selectedWorkflow.type)}
+                        <span>{selectedWorkflow.name}</span>
+                      </CardTitle>
+                      <CardDescription>
+                        {selectedWorkflow.description || `${selectedWorkflow.type} workflow`}
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="secondary">{selectedWorkflow.type}</Badge>
+                      <Badge variant="outline">{selectedWorkflow.http_method}</Badge>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {workflows.map((workflow) => (
-                    <motion.div
-                      key={workflow.id}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
-                        selectedWorkflow?.id === workflow.id
-                          ? 'border-primary bg-primary/5 shadow-sm'
-                          : 'hover:bg-muted/50 hover:border-border'
-                      }`}
-                      onClick={() => {
-                        setSelectedWorkflow(workflow);
-                        setShowResults(false);
-                        setLastResult(null);
-                      }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          {getTypeIcon(workflow.type)}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{workflow.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {workflow.n8n_instances.name}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Badge variant="secondary" className="text-xs">
-                            {workflow.type}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {workflow.http_method}
-                          </Badge>
-                        </div>
-                      </div>
-                      {workflow.description && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {workflow.description}
-                        </p>
-                      )}
-                    </motion.div>
-                  ))}
+                
+                <CardContent>
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="interact" className="flex items-center space-x-2">
+                        <Play className="h-4 w-4" />
+                        <span>Interact</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="history" className="flex items-center space-x-2">
+                        <History className="h-4 w-4" />
+                        <span>History</span>
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="interact" className="mt-6">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key="interact"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {renderWorkflowInterface()}
+                        </motion.div>
+                      </AnimatePresence>
+                    </TabsContent>
+                    
+                    <TabsContent value="history" className="mt-6">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key="history"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <SubmissionHistory workflowId={selectedWorkflow.id} />
+                        </motion.div>
+                      </AnimatePresence>
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
-            </div>
-
-            {/* Workflow Interface */}
-            <div className="lg:col-span-3">
-              {selectedWorkflow ? (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="flex items-center space-x-2">
-                          {getTypeIcon(selectedWorkflow.type)}
-                          <span>{selectedWorkflow.name}</span>
-                        </CardTitle>
-                        <CardDescription>
-                          {selectedWorkflow.description || `${selectedWorkflow.type} workflow`}
-                        </CardDescription>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="secondary">{selectedWorkflow.type}</Badge>
-                        <Badge variant="outline">{selectedWorkflow.http_method}</Badge>
-                      </div>
+            ) : (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center space-y-4">
+                    <Workflow className="h-16 w-16 mx-auto text-muted-foreground" />
+                    <div>
+                      <h3 className="text-lg font-semibold">Select a workflow</h3>
+                      <p className="text-muted-foreground">
+                        Choose a workflow from the list to start interacting
+                      </p>
                     </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="interact" className="flex items-center space-x-2">
-                          <Play className="h-4 w-4" />
-                          <span>Interact</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="history" className="flex items-center space-x-2">
-                          <History className="h-4 w-4" />
-                          <span>History</span>
-                        </TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="interact" className="mt-6">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key="interact"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            {renderWorkflowInterface()}
-                          </motion.div>
-                        </AnimatePresence>
-                      </TabsContent>
-                      
-                      <TabsContent value="history" className="mt-6">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key="history"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <SubmissionHistory workflowId={selectedWorkflow.id} />
-                          </motion.div>
-                        </AnimatePresence>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center space-y-4">
-                      <Workflow className="h-16 w-16 mx-auto text-muted-foreground" />
-                      <div>
-                        <h3 className="text-lg font-semibold">Select a workflow</h3>
-                        <p className="text-muted-foreground">
-                          Choose a workflow from the list to start interacting
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Results Display */}
+      {renderResults()}
     </div>
   );
 };

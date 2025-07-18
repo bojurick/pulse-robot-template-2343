@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Home, 
@@ -25,6 +26,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
+  SidebarHeader,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -99,55 +102,55 @@ export function AppSidebar() {
   const pendingTasks = tasks.filter(task => task.status !== 'completed').length;
 
   return (
-    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
-      <SidebarContent className="bg-sidebar border-r border-sidebar-border">
-        {/* Header with search */}
+    <Sidebar className="border-r border-border bg-sidebar" collapsible="icon">
+      <SidebarHeader className="p-4 border-b border-border">
         {!collapsed && (
-          <div className="p-4 border-b border-sidebar-border">
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 mb-4"
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-2 mb-4"
+          >
+            <Link 
+              to="/" 
+              className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
+              aria-label="Navigate to home"
             >
-              <Link 
-                to="/" 
-                className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
-                aria-label="Navigate to home"
-              >
-                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center group-hover:shadow-lg transition-shadow">
-                  <Target className="h-4 w-4 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-sidebar-foreground group-hover:text-primary transition-colors">AI Command</h2>
-                  <p className="text-xs text-sidebar-foreground/60">Productivity Hub</p>
-                </div>
-              </Link>
-            </motion.div>
-            
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-sidebar-foreground/60" />
-              <Input 
-                placeholder="Search or command..." 
-                className="pl-10 bg-sidebar-accent border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary"
-                aria-label="Search or command"
-              />
-            </div>
-          </div>
+              <div className="w-8 h-8 bg-gradient-to-br from-[#E20074] to-[#E20074]/80 rounded-lg flex items-center justify-center group-hover:shadow-lg transition-shadow">
+                <Target className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-sidebar-foreground group-hover:text-[#E20074] transition-colors">AI Command</h2>
+                <p className="text-xs text-sidebar-foreground/60">Productivity Hub</p>
+              </div>
+            </Link>
+          </motion.div>
         )}
-
-        {/* Collapsed state home button */}
+        
         {collapsed && (
-          <div className="p-2 border-b border-sidebar-border">
+          <div className="flex justify-center">
             <Link 
               to="/" 
               className="flex items-center justify-center w-full p-2 rounded-lg hover:bg-sidebar-accent transition-colors"
               aria-label="Navigate to home"
             >
-              <Target className="h-4 w-4 text-primary" />
+              <Target className="h-4 w-4 text-[#E20074]" />
             </Link>
           </div>
         )}
 
+        {!collapsed && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-sidebar-foreground/60" />
+            <Input 
+              placeholder="Search or command..." 
+              className="pl-10 bg-sidebar-accent border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/60 focus:border-[#E20074] focus:ring-2 focus:ring-[#E20074]/20"
+              aria-label="Search or command"
+            />
+          </div>
+        )}
+      </SidebarHeader>
+
+      <SidebarContent className="p-2">
         {/* Main Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/80">
@@ -162,15 +165,15 @@ export function AppSidebar() {
                       to={item.url} 
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group ${
                         isActive(item.url)
-                          ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                          ? 'bg-[#E20074]/10 text-[#E20074] border border-[#E20074]/20 shadow-sm'
                           : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                       }`}
                       aria-label={`Navigate to ${item.title}`}
                     >
                       <item.icon className={`h-4 w-4 ${
                         isActive(item.url) 
-                          ? 'text-sidebar-primary-foreground' 
-                          : 'text-sidebar-foreground/70 group-hover:text-primary'
+                          ? 'text-[#E20074]' 
+                          : 'text-sidebar-foreground/70 group-hover:text-[#E20074]'
                       }`} />
                       {!collapsed && (
                         <motion.div
@@ -182,7 +185,7 @@ export function AppSidebar() {
                           <div className="flex items-center justify-between">
                             <span className="font-medium">{item.title}</span>
                             {item.title === "Tasks" && pendingTasks > 0 && (
-                              <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                              <span className="bg-[#E20074] text-white text-xs px-2 py-0.5 rounded-full">
                                 {pendingTasks}
                               </span>
                             )}
@@ -237,25 +240,25 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
-
-        {/* Settings */}
-        <div className="mt-auto p-4 border-t border-sidebar-border">
-          <SidebarMenuButton asChild>
-            <Link 
-              to="/settings" 
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
-                isActive('/settings')
-                  ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              }`}
-              aria-label="Navigate to Settings"
-            >
-              <Settings className="h-4 w-4" />
-              {!collapsed && <span className="font-medium">Settings</span>}
-            </Link>
-          </SidebarMenuButton>
-        </div>
       </SidebarContent>
+
+      {/* Settings */}
+      <SidebarFooter className="p-4 border-t border-border">
+        <SidebarMenuButton asChild>
+          <Link 
+            to="/settings" 
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
+              isActive('/settings')
+                ? 'bg-[#E20074]/10 text-[#E20074] border border-[#E20074]/20'
+                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+            }`}
+            aria-label="Navigate to Settings"
+          >
+            <Settings className="h-4 w-4" />
+            {!collapsed && <span className="font-medium">Settings</span>}
+          </Link>
+        </SidebarMenuButton>
+      </SidebarFooter>
     </Sidebar>
   );
 }

@@ -45,7 +45,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
           onClick={handleBack}
           variant={variant}
           size={size}
-          className={`text-primary hover:text-primary/80 hover:bg-primary/10 transition-colors ${className}`}
+          className={`text-[#E20074] hover:text-[#E20074]/80 hover:bg-[#E20074]/10 transition-colors ${className}`}
           aria-label={tooltip}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

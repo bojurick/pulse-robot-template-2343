@@ -12,6 +12,8 @@ import { useAccessibility } from "@/hooks/useAccessibility";
 import { usePerformance } from "@/hooks/usePerformance";
 import { preventEmptyLinkNavigation } from "@/utils/linkValidation";
 import { LazyWrapper, createLazyRoute } from "@/components/LazyWrapper";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -72,109 +74,84 @@ const App = () => {
       <BrowserRouter>
         <AuthProvider>
           <TooltipProvider>
-            {/* Skip to main content link for accessibility */}
-            <a 
-              href="#main-content" 
-              className="skip-link"
-              onFocus={(e) => announceToScreenReader("Skip to main content link focused")}
-            >
-              Skip to main content
-            </a>
-
-            {/* Global theme switcher */}
-            <div className="fixed top-4 right-4 z-50 no-print">
-              <ThemeSwitcher />
-            </div>
-
-            {/* Offline indicator */}
-            {metrics.networkStatus === 'offline' && (
-              <div 
-                className="fixed top-0 left-0 right-0 bg-warning text-warning-foreground text-center py-2 z-40"
-                role="alert"
-                aria-live="assertive"
+            <SidebarProvider>
+              {/* Skip to main content link for accessibility */}
+              <a 
+                href="#main-content" 
+                className="skip-link sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md"
+                onFocus={(e) => announceToScreenReader("Skip to main content link focused")}
               >
-                You are currently offline. Some features may be limited.
-              </div>
-            )}
+                Skip to main content
+              </a>
 
-            <main id="main-content" className="min-h-screen">
-              <Routes>
-                <Route path="/login" element={
-                  <LazyWrapper>
-                    <LoginPage />
-                  </LazyWrapper>
-                } />
-                <Route 
-                  path="/" 
-                  element={
-                    <ProtectedRoute>
-                      <Index />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/chat" 
-                  element={
-                    <ProtectedRoute>
+              {/* Offline indicator */}
+              {metrics.networkStatus === 'offline' && (
+                <div 
+                  className="fixed top-0 left-0 right-0 bg-warning text-warning-foreground text-center py-2 z-40"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  You are currently offline. Some features may be limited.
+                </div>
+              )}
+
+              <div className="flex min-h-screen w-full">
+                <Routes>
+                  <Route path="/login" element={
+                    <div className="w-full">
                       <LazyWrapper>
-                        <ChatPage />
+                        <LoginPage />
                       </LazyWrapper>
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/tasks" 
-                  element={
+                    </div>
+                  } />
+                  <Route path="/*" element={
                     <ProtectedRoute>
-                      <LazyWrapper>
-                        <TasksPage />
-                      </LazyWrapper>
+                      <AppLayout>
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/chat" element={
+                            <LazyWrapper>
+                              <ChatPage />
+                            </LazyWrapper>
+                          } />
+                          <Route path="/tasks" element={
+                            <LazyWrapper>
+                              <TasksPage />
+                            </LazyWrapper>
+                          } />
+                          <Route path="/analytics" element={
+                            <LazyWrapper>
+                              <AnalyticsPage />
+                            </LazyWrapper>
+                          } />
+                          <Route path="/workflows" element={
+                            <LazyWrapper>
+                              <WorkflowHub />
+                            </LazyWrapper>
+                          } />
+                          <Route path="/settings" element={
+                            <LazyWrapper>
+                              <SettingsPage />
+                            </LazyWrapper>
+                          } />
+                          <Route path="*" element={
+                            <LazyWrapper>
+                              <NotFound />
+                            </LazyWrapper>
+                          } />
+                        </Routes>
+                      </AppLayout>
                     </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/analytics" 
-                  element={
-                    <ProtectedRoute>
-                      <LazyWrapper>
-                        <AnalyticsPage />
-                      </LazyWrapper>
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/workflows" 
-                  element={
-                    <ProtectedRoute>
-                      <LazyWrapper>
-                        <WorkflowHub />
-                      </LazyWrapper>
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/settings" 
-                  element={
-                    <ProtectedRoute>
-                      <LazyWrapper>
-                        <SettingsPage />
-                      </LazyWrapper>
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route path="*" element={
-                  <LazyWrapper>
-                    <NotFound />
-                  </LazyWrapper>
-                } />
-              </Routes>
+                  } />
+                </Routes>
+              </div>
               
               {/* Mobile Bottom Navigation */}
               <MobileBottomNav />
-            </main>
             
-            <Toaster />
-            <Sonner />
+              <Toaster />
+              <Sonner />
+            </SidebarProvider>
           </TooltipProvider>
         </AuthProvider>
       </BrowserRouter>
