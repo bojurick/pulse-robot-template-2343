@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -72,18 +71,15 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (data && !error) {
-          // Safely access the config property with proper type checking
-          if (data && typeof data === 'object' && 'config' in data) {
-            const config = (data as any).config;
-            setSavedConfig(config);
-            
-            // Pre-fill form with saved config
-            setValue('body', config.body || '{}');
-            setValue('method', config.method || workflow.http_method);
-            setValue('headers', config.headers || [{ key: 'Content-Type', value: 'application/json' }]);
-            setValue('queryParams', config.queryParams || []);
-          }
+        if (data && !error && typeof data === 'object' && 'config' in data) {
+          const config = (data as any).config;
+          setSavedConfig(config);
+          
+          // Pre-fill form with saved config
+          setValue('body', config.body || '{}');
+          setValue('method', config.method || workflow.http_method);
+          setValue('headers', config.headers || [{ key: 'Content-Type', value: 'application/json' }]);
+          setValue('queryParams', config.queryParams || []);
         }
       } catch (error) {
         console.error('Error loading saved config:', error);
