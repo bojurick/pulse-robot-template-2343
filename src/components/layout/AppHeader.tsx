@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { BackButton } from "@/components/navigation/BackButton";
 import { AppBreadcrumb } from "@/components/navigation/AppBreadcrumb";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { UserMenu } from "@/components/UserMenu";
+import UserMenu from "@/components/UserMenu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export const AppHeader: React.FC = () => {
