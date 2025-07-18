@@ -73,7 +73,9 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
           .maybeSingle();
 
         if (data && !error) {
-          const config = data.config as ConfigFormData;
+          // Properly type the config data
+          const configData = data as { config: ConfigFormData };
+          const config = configData.config;
           setSavedConfig(config);
           
           // Pre-fill form with saved config
