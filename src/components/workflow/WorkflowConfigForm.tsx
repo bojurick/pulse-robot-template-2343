@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -65,15 +66,16 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
 
         // Query the workflow_configs table with proper type handling
         const { data, error } = await supabase
-          .from('workflow_configs' as any)
+          .from('workflow_configs')
           .select('*')
           .eq('workflow_id', workflow.id)
           .eq('user_id', user.id)
           .maybeSingle();
 
-        // Explicit null check and type guard
-        if (!error && data !== null && typeof data === 'object' && 'config' in data) {
-          const config = (data as any).config;
+        // Explicit null check and type guard with additional validation
+        if (!error && data !== null && typeof data === 'object' && data && 'config' in data) {
+          const configData = data as { config: ConfigFormData };
+          const config = configData.config;
           setSavedConfig(config);
           
           // Pre-fill form with saved config
@@ -97,7 +99,7 @@ export const WorkflowConfigForm: React.FC<WorkflowConfigFormProps> = ({
       if (!user) return;
 
       const { error } = await supabase
-        .from('workflow_configs' as any)
+        .from('workflow_configs')
         .upsert({
           workflow_id: workflow.id,
           user_id: user.id,
