@@ -3,27 +3,23 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
   MessageSquare, 
   FileText, 
   MousePointer, 
-  Send,
-  Zap,
-  Plus
+  Plus,
+  Zap
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { n8nWorkflowUtils } from '@/lib/n8nUtils';
 import { WorkflowResults } from '@/components/workflow/WorkflowResults';
+import { WorkflowConfigForm } from '@/components/workflow/WorkflowConfigForm';
 import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
-import { toast } from '@/hooks/use-toast';
 
 const WorkflowHub: React.FC = () => {
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>('');
-  const [formData, setFormData] = useState<Record<string, any>>({});
   
   const { 
     currentResult, 
@@ -37,14 +33,10 @@ const WorkflowHub: React.FC = () => {
     queryFn: () => n8nWorkflowUtils.getAll(),
   });
 
-  const handleTriggerWorkflow = async (workflowId: string, data: any = {}) => {
+  const handleTriggerWorkflow = async (workflowId: string, config: any = {}) => {
+    console.log('Triggering workflow with config:', config);
     setSelectedWorkflow(workflowId);
-    executeWorkflow.mutate({ workflowId, data });
-  };
-
-  const handleFormSubmit = (e: React.FormEvent, workflowId: string) => {
-    e.preventDefault();
-    handleTriggerWorkflow(workflowId, formData);
+    executeWorkflow.mutate({ workflowId, data: config.body || {}, options: config });
   };
 
   const getWorkflowIcon = (type: string) => {
@@ -92,7 +84,7 @@ const WorkflowHub: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-foreground">Workflow Hub</h1>
             <p className="text-muted-foreground mt-2">
-              Trigger and manage your n8n workflows
+              Configure and trigger your n8n workflows with advanced options
             </p>
           </div>
           <Button className="bg-[#E20074] hover:bg-[#E20074]/90 text-white">
@@ -118,7 +110,7 @@ const WorkflowHub: React.FC = () => {
                 <Badge variant="secondary">{typeWorkflows.length}</Badge>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 lg:grid-cols-1">
                 {typeWorkflows.map((workflow) => (
                   <Card key={workflow.id} className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-3">
@@ -135,101 +127,20 @@ const WorkflowHub: React.FC = () => {
                           {workflow.http_method}
                         </Badge>
                       </div>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+                        <span>Instance: {workflow.n8n_instances?.name}</span>
+                        <span className="truncate ml-2 max-w-[120px]">
+                          {workflow.webhook_url.split('/').pop()}
+                        </span>
+                      </div>
                     </CardHeader>
                     
-                    <CardContent className="pt-0">
-                      {type === 'form' ? (
-                        <form onSubmit={(e) => handleFormSubmit(e, workflow.id)}>
-                          <div className="space-y-3 mb-4">
-                            <Input
-                              placeholder="Enter name..."
-                              value={formData.name || ''}
-                              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            />
-                            <Textarea
-                              placeholder="Enter message..."
-                              value={formData.message || ''}
-                              onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                              rows={3}
-                            />
-                          </div>
-                          <Button 
-                            type="submit" 
-                            className="w-full bg-[#E20074] hover:bg-[#E20074]/90 text-white"
-                            disabled={isExecuting}
-                          >
-                            {isExecuting && selectedWorkflow === workflow.id ? (
-                              <>
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <Send className="h-4 w-4 mr-2" />
-                                Submit Form
-                              </>
-                            )}
-                          </Button>
-                        </form>
-                      ) : type === 'chat' ? (
-                        <div className="space-y-3">
-                          <Input
-                            placeholder="Enter your message..."
-                            value={formData.message || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                handleTriggerWorkflow(workflow.id, { message: formData.message });
-                              }
-                            }}
-                          />
-                          <Button 
-                            onClick={() => handleTriggerWorkflow(workflow.id, { message: formData.message })}
-                            className="w-full bg-[#E20074] hover:bg-[#E20074]/90 text-white"
-                            disabled={isExecuting}
-                          >
-                            {isExecuting && selectedWorkflow === workflow.id ? (
-                              <>
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-                                Sending...
-                              </>
-                            ) : (
-                              <>
-                                <MessageSquare className="h-4 w-4 mr-2" />
-                                Send Message
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button 
-                          onClick={() => handleTriggerWorkflow(workflow.id)}
-                          className="w-full bg-[#E20074] hover:bg-[#E20074]/90 text-white"
-                          disabled={isExecuting}
-                        >
-                          {isExecuting && selectedWorkflow === workflow.id ? (
-                            <>
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-                              Triggering...
-                            </>
-                          ) : (
-                            <>
-                              <Zap className="h-4 w-4 mr-2" />
-                              Trigger Workflow
-                            </>
-                          )}
-                        </Button>
-                      )}
-
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>Instance: {workflow.n8n_instances?.name}</span>
-                          <span className="truncate ml-2 max-w-[120px]">
-                            {workflow.webhook_url.split('/').pop()}
-                          </span>
-                        </div>
-                      </div>
+                    <CardContent className="pt-0 space-y-4">
+                      <WorkflowConfigForm
+                        workflow={workflow}
+                        onTrigger={(config) => handleTriggerWorkflow(workflow.id, config)}
+                        isLoading={isExecuting && selectedWorkflow === workflow.id}
+                      />
                     </CardContent>
                   </Card>
                 ))}
